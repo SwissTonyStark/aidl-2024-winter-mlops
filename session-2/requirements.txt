@@ -1,5 +1,6 @@
 matplotlib
+pandas
 numpy
 Pillow
 torch
-ray
+ray[tune]

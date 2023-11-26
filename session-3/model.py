@@ -1,27 +1,34 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+
 
 class MyModel(nn.Module):
-
-    def __init__(self, h1=32, h2=64, h3=128, h4=256, h5=256):
+    def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, h1, 3, padding=1)
-        self.conv2 = nn.Conv2d(h1, h2, 3, padding=1)
-        self.conv3 = nn.Conv2d(h2, h3, 3, padding=1)
-        self.conv4 = nn.Conv2d(h3, h4, 3, padding=1)
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Conv2d(32, 64, kernel_size=3),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Conv2d(64, 128, kernel_size=3),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2)
+        )
 
-        self.fc1 = nn.Linear(8*8*h4, h5)
-        self.fc2 = nn.Linear(h5, 1)
-
-        self.pool = nn.MaxPool2d(2)
+        self.fc_layers = nn.Sequential(
+            nn.Linear(25088, 512),
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(512, 1),
+            nn.Sigmoid(),
+        )
 
     def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = self.pool(F.relu(self.conv3(x)))
-        x = self.pool(F.relu(self.conv4(x)))
-        x = torch.flatten(x, start_dim=1)
+        x = self.conv_layers(x)
+        batch_size, num_ch, height, width = x.shape
+        x = torch.reshape(x, (batch_size, num_ch * height * width))
+        x = self.fc_layers(x)
 
-        x = F.relu(self.fc1(x))
-        return self.fc2(x)
+        return x

@@ -1,5 +1,5 @@
 matplotlib==3.3.3
 numpy
 Pillow==8.0.1
-torch==1.8.0
+torch
 ray==1.4.1

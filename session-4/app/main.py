@@ -1,12 +1,9 @@
 import logging
 import pathlib
-
 import torch
 from flask import Flask, render_template, request
 from torchtext.data.utils import get_tokenizer, ngrams_iterator
-
 from model import SentimentAnalysis
-
 
 VOCAB = None
 MODEL = None
